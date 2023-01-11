@@ -93,3 +93,41 @@
     (unless (or (daemonp) (server-running-p))
       (message "Starting a server...")
       (server-start))))
+(if (not (version<= spacemacs-emacs-min-version emacs-version))
+    (error (concat "Your version of Emacs (%s) is too old. "
+                   "Spacemacs requires Emacs version %s or above.")
+           emacs-version spacemacs-emacs-min-version)
+  ;; Disabling file-name-handlers for a speed boost during init might seem like
+  ;; a good idea but it causes issues like
+  ;; https://github.com/syl20bnr/spacemacs/issues/11585 "Symbol's value as
+  ;; variable is void: \213" when emacs is not built having:
+  ;; `--without-compress-install`
+  (let ((please-do-not-disable-file-name-handler-alist nil))
+    (require 'core-spacemacs)
+    (spacemacs/dump-restore-load-path)
+    (configuration-layer/load-lock-file)
+    (spacemacs/init)
+    (configuration-layer/stable-elpa-init)
+    (configuration-layer/load)
+    (spacemacs-buffer/display-startup-note)
+    (spacemacs/setup-startup-hook)
+    (spacemacs/dump-eval-delayed-functions)
+    (when (and dotspacemacs-enable-server (not (spacemacs-is-dumping-p)))
+      (require 'server)
+      (when dotspacemacs-server-socket-dir
+        (setq server-socket-dir dotspacemacs-server-socket-dir))
+      (unless (server-running-p)
+        (message "Starting a server...")
+        (server-start)))))
+
+;; agda/plfa specific settings
+
+;; auto-load agda-mode for .agda and .lagda.md
+;;(setq auto-mode-alist
+;;   (append
+;;     '(("\\.agda\\'" . agda2-mode)
+;;       ("\\.lagda.md\\'" . agda2-mode))
+;;     auto-mode-alist))
+
+;;(load-file (let ((coding-system-for-read 'utf-8))
+;;                (shell-command-to-string "agda-mode locate")))
