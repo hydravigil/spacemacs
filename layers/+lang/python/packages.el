@@ -28,6 +28,7 @@
     company
     cython-mode
     dap-mode
+    pet
     eldoc
     evil-matchit
     flycheck
@@ -61,6 +62,13 @@
     (company-anaconda :requires (anaconda-mode company))
     ;; packages for Microsoft's pyright language server
     (lsp-pyright :requires lsp-mode :toggle (eq python-lsp-server 'pyright))))
+
+(defun python/init-pet ()
+  (use-package pet
+    :ensure-system-package (dasel sqlite3)
+    :defer t
+    :config
+    (add-hook 'python-base-mode-hook 'pet-mode -10)))
 
 (defun python/init-anaconda-mode ()
   (use-package anaconda-mode
@@ -105,10 +113,7 @@
   (add-hook 'python-mode-local-vars-hook #'spacemacs//python-setup-company)
   (spacemacs|add-company-backends
     :backends (company-files company-capf)
-    :modes inferior-python-mode
-    :variables
-    company-minimum-prefix-length 0
-    company-idle-delay 0.5)
+    :modes inferior-python-mode)
   (when (configuration-layer/package-used-p 'pip-requirements)
     (spacemacs|add-company-backends
       :backends company-capf
@@ -148,7 +153,10 @@
   (add-hook `python-mode-hook `turn-on-evil-matchit-mode))
 
 (defun python/post-init-flycheck ()
-  (spacemacs/enable-flycheck 'python-mode))
+  (spacemacs/enable-flycheck 'python-mode)
+  ;; Setup flycheck but only after pet is loaded.
+  (with-eval-after-load 'pet
+    (add-hook 'python-mode-hook 'pet-flycheck-setup)))
 
 (defun python/pre-init-helm-cscope ()
   (spacemacs|use-package-add-hook xcscope
@@ -432,16 +440,7 @@
 
     ;; add this optional key binding for Emacs user, since it is unbound
     (define-key inferior-python-mode-map
-                (kbd "C-c M-l") 'spacemacs/comint-clear-buffer)
-
-    (setq spacemacs--python-shell-interpreter-origin
-          (eval (car (get 'python-shell-interpreter 'standard-value))))
-    ;; setup the global variables for python shell if no custom value
-    (when (equal python-shell-interpreter spacemacs--python-shell-interpreter-origin)
-      (spacemacs//python-setup-shell default-directory)
-      (setq spacemacs--python-shell-interpreter-origin python-shell-interpreter)
-      (dolist (x '(python-shell-interpreter python-shell-interpreter-args))
-        (set-default-toplevel-value x (symbol-value x))))))
+                (kbd "C-c M-l") 'spacemacs/comint-clear-buffer)))
 
 (defun python/post-init-semantic ()
   (when (configuration-layer/package-used-p 'anaconda-mode)
