@@ -49,6 +49,8 @@
     (pylookup :location (recipe :fetcher local))
     (pytest :toggle (memq 'pytest (flatten-list (list python-test-runner))))
     (python :location built-in)
+    pyvenv
+    (ruff-format :toggle (eq 'ruff python-formatter))
     semantic
     sphinx-doc
     smartparens
@@ -423,6 +425,14 @@
     (when python-format-on-save
       (add-hook 'python-mode-hook 'yapf-mode))
     :config (spacemacs|hide-lighter yapf-mode)))
+
+(defun python/init-ruff-format ()
+  (use-package ruff-format
+    :defer t
+    :init
+    (when python-format-on-save
+      (add-hook 'python-mode-hook 'ruff-format-on-save-mode))
+    :config (spacemacs|hide-lighter ruff-format-on-save-mode)))
 
 (defun python/init-lsp-pyright ()
   (use-package lsp-pyright
