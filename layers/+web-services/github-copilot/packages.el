@@ -26,7 +26,30 @@
 
 (defun github-copilot/init-copilot ()
   (use-package copilot
+    :hook '(prog-mode-hook . copilot-mode)
     :custom
     (copilot-enable-predicates '(spacemacs//copilot-enable-predicate
                                  copilot--buffer-changed))
-    :defer t))
+    :defer t
+    :config
+    (with-eval-after-load 'company
+      (define-key copilot-completion-map (kbd "C-<iso-lefttab>") 'github-copilot/next-completion)
+      (define-key copilot-completion-map (kbd "C-M-<iso-lefttab>") 'github-copilot/previous-completion)
+      (define-key copilot-completion-map (kbd "C-M-<return>") 'copilot-accept-completion)
+      (define-key copilot-completion-map (kbd "C-M-S-<return>") 'copilot-accept-completion-by-word))))
+
+(defun github-copilot/next-completion ()
+  "Move to the next completion in the Copilot completion menu.
+This function will make sure to show the next completion,
+if necessary triggering a `copilot-complete' command beforehand."
+  (interactive)
+  (copilot-complete)
+  (copilot-next-completion))
+
+(defun github-copilot/previous-completion ()
+  "Move to the previous completion in the Copilot completion menu.
+This function will make sure to show the previous completion,
+if necessary triggering a `copilot-complete' command beforehand."
+  (interactive)
+  (copilot-complete)
+  (copilot-previous-completion))
