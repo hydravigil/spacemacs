@@ -1,4 +1,4 @@
-;;; packages.el --- Large GitHub Copilot Client for Spacemacs  -*- lexical-binding: nil; -*-
+;;; packages.el --- Large GitHub Copilot Client for Spacemacs  -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (c) 2012-2025 Sylvain Benner & Contributors
 ;;
@@ -22,34 +22,39 @@
 
 
 (defconst github-copilot-packages
-  '((copilot)))
+  '((copilot)
+    (copilot-chat)))
 
 (defun github-copilot/init-copilot ()
+  "Initialize the `copilot' package and set up keybindings."
   (use-package copilot
-    :hook '(prog-mode-hook . copilot-mode)
+    :hook (prog-mode . copilot-mode)
     :custom
     (copilot-enable-predicates '(spacemacs//copilot-enable-predicate
                                  copilot--buffer-changed))
     :defer t
     :config
-    (with-eval-after-load 'company
-      (define-key copilot-completion-map (kbd "C-<iso-lefttab>") 'github-copilot/next-completion)
-      (define-key copilot-completion-map (kbd "C-M-<iso-lefttab>") 'github-copilot/previous-completion)
-      (define-key copilot-completion-map (kbd "C-M-<return>") 'copilot-accept-completion)
-      (define-key copilot-completion-map (kbd "C-M-S-<return>") 'copilot-accept-completion-by-word))))
+    (define-key copilot-completion-map (kbd "C-M-<tab>") 'spacemacs/github-copilot-next-completion)
+    (define-key copilot-completion-map (kbd "C-M-<iso-lefttab>") 'spacemacs/github-copilot-previous-completion)
+    (define-key copilot-completion-map (kbd "C-M-<return>") 'copilot-accept-completion)
+    (define-key copilot-completion-map (kbd "C-M-S-<return>") 'copilot-accept-completion-by-word)))
 
-(defun github-copilot/next-completion ()
-  "Move to the next completion in the Copilot completion menu.
-This function will make sure to show the next completion,
-if necessary triggering a `copilot-complete' command beforehand."
-  (interactive)
-  (copilot-complete)
-  (copilot-next-completion))
+(defun github-copilot/init-copilot-chat ()
+  "Initialize the `copilot-chat' package and set up keybindings."
+  (use-package copilot-chat
+    :hook (git-commit-setup . copilot-chat-insert-commit-message)
+    :defer t
+    :init
+    ;; Provide our transient state in the AI menu
+    (spacemacs/declare-prefix "$" "AI")
+    (spacemacs/set-leader-keys "$c" 'copilot-chat-transient)
+    :config
+    ;; Make sure that standard ,, works as confirm in the chat window
+    (evil-define-key 'normal copilot-chat-prompt-mode-map ",," #'copilot-chat-prompt-send)
+    (evil-define-key 'normal copilot-chat-prompt-mode-map ",a" #'copilot-chat-kill-instance)
+    (evil-define-key 'normal copilot-chat-prompt-mode-map ",k" #'copilot-chat-kill-instance)
 
-(defun github-copilot/previous-completion ()
-  "Move to the previous completion in the Copilot completion menu.
-This function will make sure to show the previous completion,
-if necessary triggering a `copilot-complete' command beforehand."
-  (interactive)
-  (copilot-complete)
-  (copilot-previous-completion))
+    ;; And don't forget to provide an alternative for holy mode users
+    (define-key copilot-chat-prompt-mode-map (kbd "C-c C-c") #'copilot-chat-prompt-send)
+    (define-key copilot-chat-prompt-mode-map (kbd "C-c C-a") #'copilot-chat-kill-instance)
+    (define-key copilot-chat-prompt-mode-map (kbd "C-c C-k") #'copilot-chat-kill-instance)))
