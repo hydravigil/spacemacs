@@ -49,7 +49,6 @@
     (pylookup :location (recipe :fetcher local))
     (pytest :toggle (memq 'pytest (flatten-list (list python-test-runner))))
     (python :location built-in)
-    pyvenv
     (ruff-format :toggle (eq 'ruff python-formatter))
     semantic
     sphinx-doc
@@ -65,10 +64,9 @@
 
 (defun python/init-pet ()
   (use-package pet
+    :hook (python-base-mode . pet-mode)
     :ensure-system-package (dasel sqlite3)
-    :defer t
-    :config
-    (add-hook 'python-base-mode-hook 'pet-mode -10)))
+    :defer t))
 
 (defun python/init-anaconda-mode ()
   (use-package anaconda-mode
