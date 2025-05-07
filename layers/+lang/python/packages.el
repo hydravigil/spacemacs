@@ -28,7 +28,8 @@
     company
     cython-mode
     dap-mode
-    pet
+    ;; pet
+    (pet :location (recipe :fetcher github :repo "smile13241324/emacs-pet"))
     eldoc
     evil-matchit
     flycheck
