@@ -2389,25 +2389,31 @@ depends on it."
                (package-desc-name pkg-desc))
     (package-delete pkg-desc t t)))
 
-(defun configuration-layer/delete-orphan-packages (packages)
+(defun configuration-layer/delete-orphan-packages (packages &optional include-system)
   "Delete PACKAGES if they are orphan.
 
-When called interactively, delete all orphan packages."
-  (interactive (list (configuration-layer/get-packages-list)))
+When called interactively, delete all orphan packages.
+
+If INCLUDE-SYSTEM is non-nil (including when called interactively),
+alert the user about unused system packages that are not used by
+Spacemacs.  (These are excluded by default to avoid bothering users
+about unused packages that are provided by their site, which they may
+have no need or power to remove)."
+  (interactive (list (configuration-layer/get-packages-list) t))
   (let* ((dependencies
           (configuration-layer//get-packages-downstream-dependencies-from-alist))
          (implicit-packages
           (configuration-layer//get-implicit-packages-from-alist
            packages))
-         (orphans (configuration-layer//get-orphan-packages
-                   packages
-                   implicit-packages
-                   dependencies))
+         (orphans
+          (seq-filter (if include-system #'always
+                        (lambda (p) (not (configuration-layer//system-package-p p))))
+                      (configuration-layer//get-orphan-packages
+                       packages
+                       implicit-packages
+                       dependencies)))
          (orphans-count (length orphans))
          deleted-count)
-    ;; (message "dependencies: %s" dependencies)
-    ;; (message "implicit: %s" implicit-packages)
-    ;; (message "orphans: %s" orphans)
     (if orphans
         (progn
           (spacemacs-buffer/set-mode-line "Uninstalling unused packages..." t)
