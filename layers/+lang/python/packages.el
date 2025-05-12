@@ -28,7 +28,7 @@
     company
     cython-mode
     dap-mode
-    ;; pet
+    ;; We are using a fork until pet is prefering ipython as default shell (https://github.com/wyuenho/emacs-pet/pull/56)
     (pet :location (recipe :fetcher github :repo "smile13241324/emacs-pet"))
     eldoc
     evil-matchit
@@ -67,7 +67,8 @@
 (defun python/init-pet ()
   (use-package pet
     :hook (python-base-mode . pet-mode)
-    :ensure-system-package (dasel sqlite3)
+    :if (and (executable-find "dasel")
+             (executable-find "sqlite3"))
     :defer t))
 
 (defun python/init-anaconda-mode ()

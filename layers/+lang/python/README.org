@@ -355,8 +355,15 @@ You can add to the other two lists analogously.
 
 * Management of Python versions and virtual environments
 In general virtual environments are automatically used when active
-using [[https://github.com/wyuenho/emacs-pet][pet-mode]]. Independent of this you can activate and switch
-virtual environments with below tools.
+using [[https://github.com/wyuenho/emacs-pet][pet-mode]], this requires the
+following additional packages to be available in your path:
+
+| Package   | Description                                   |
+|-----------+-----------------------------------------------|
+| ~dasel~   | an application to query data structures [[https://github.com/TomWright/dasel][dasel]] |
+| ~sqlite3~ | a lightwait and serverless database [[https://www.sqlite.org/][sqlite]]    |
+
+Independent of this you can activate and switch virtual environments manually with below tools.
 
 ** Manage multiple Python versions with pyenv
 If you need multiple Python versions (e.g. Python 2 and Python 3) then take a
