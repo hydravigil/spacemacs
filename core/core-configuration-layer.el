@@ -2196,7 +2196,7 @@ in the back-up directory."
          (format "--> preparing update of package %s... [%s/%s]"
                  pkg upgraded-count upgrade-count) t)
         (spacemacs//redisplay)
-        (configuration-layer//package-delete pkg)
+        (configuration-layer//package-delete (cadr (assq pkg package-alist)))
         (setq configuration-layer--packages-to-update
               (delq pkg configuration-layer--packages-to-update))))
     (spacemacs-buffer/append
