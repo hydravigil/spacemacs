@@ -22,8 +22,7 @@
 
 
 (defconst gleam-packages
-  '((treesit)
-    (gleam-ts-mode)))
+  '(gleam-ts-mode))
 
 (defun gleam/init-gleam-ts-mode ()
   "Initialize gleam-ts-mode"
