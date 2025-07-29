@@ -882,13 +882,14 @@ graphical frames, and one set for terminal frames."
     (--zip-with (set-persp-parameter it other persp)
                 param-names workspace-params)))
 
-(defun spacemacs/load-eyebrowse-for-perspective (type &optional frame)
+(defun spacemacs/load-eyebrowse-for-perspective (type &optional frame persp)
   "Load an eyebrowse workspace according to a perspective's parameters.
- FRAME's perspective is the perspective that is considered, defaulting to
- the current frame's perspective.
- If the perspective doesn't have a workspace, create one."
+If the perspective doesn't have a workspace, create one.
+
+See the hook `persp-activated-functions'."
   (when (eq type 'frame)
-    (let* ((workspace-params (spacemacs//get-persp-workspace (get-frame-persp frame) frame))
+    (let* ((workspace-params (spacemacs//get-persp-workspace
+                              (or persp (get-frame-persp frame)) frame))
            (window-configs (nth 0 workspace-params))
            (current-slot (nth 1 workspace-params))
            (last-slot (nth 2 workspace-params)))
