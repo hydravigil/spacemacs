@@ -523,6 +523,16 @@ perspectives does."
           (helm-quit-hook (append helm-quit-hook
                                   (lambda ()
                                     (persp-kill-without-buffers project)))))
+      ;; HACK Fixes the bug reported in
+      ;; https://github.com/syl20bnr/spacemacs/issues/17074#issuecomment-3134120413.
+      ;; `helm-projectile' is invoked as our `projectile-switch-project-action'.
+      ;; It tries to determine the project through `projectile-acquire-root'
+      ;; within `with-helm-current-buffer', but this fails for buffers that are
+      ;; not part of the project. As a workaround we preemptively switch to one of
+      ;; the project's buffers here.
+      (when (eq projectile-switch-project-action 'helm-projectile)
+        (let ((project-buffers (projectile-project-buffers (expand-file-name project))))
+          (switch-to-buffer (or (car project-buffers) (dired project)))))
       (projectile-switch-project-by-name project))))
 
 (defun spacemacs//helm-persp-switch-project-action-maker (project-action)
